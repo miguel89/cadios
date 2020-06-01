@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+<ui:composition template="template.xhtml">
+    <ui:define name="head">
+        <title>Listar Usuários</title>
+
+        <h:outputStylesheet>
+            h1 {
+                float: left;
+            }
+            div.clear {
+                clear: both;
+            }
+            .userGrid {
+                width: 100%;
+            }
+            .userGrid td:first-child {
+                width: 30%;
+            }
+            .userGrid td {
+                vertical-align: top
+            }
+        </h:outputStylesheet>
+    </ui:define>
+    <ui:define name="content">
+        <h:messages/>
+        <h:form id="form">
+        <h:panelGrid id="userGrid" styleClass="userGrid" columns="2">
+            <h:panelGroup id="userList">
+                <fieldset>
+                    <legend>Listagem de usuários</legend>
+                    <h:dataTable var="user" value="#{userList.all}">
+                        <h:column>
+                            <h:commandLink action="#{userController.deleteUser(userForDeletion)}">
+                                <h:selectBooleanCheckbox/>
+                                <f:setPropertyActionListener target="#{userForDeletion}" value="#{user}"/>
+                                <f:ajax render=":form:userGrid"/>
+                            </h:commandLink>
+
+                            <h:commandLink value="#{user.fullName}">
+                                <!--                            <f:setPropertyActionListener target="#{taskController.currentTask}" value="#{task}" />-->
+                                <!--                            <f:ajax render=":form:taskDetail" />-->
+                            </h:commandLink>
+                        </h:column>
+                    </h:dataTable>
+                </fieldset>
+            </h:panelGroup>
+        </h:panelGrid>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>
