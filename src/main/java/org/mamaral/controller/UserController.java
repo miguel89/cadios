@@ -17,8 +17,23 @@ public class UserController {
     @Inject
     private UserList userList;
 
+    private User currentUser;
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+    }
+
+    public User getCurrentUser() {
+        return this.currentUser;
+    }
+
     public void deleteUser(User user) {
         this.userList.invalidate();
         this.userDao.delete(user);
+    }
+
+    public void deleteCurrentUser() {
+        this.deleteUser(this.currentUser);
+        this.currentUser = null;
     }
 }

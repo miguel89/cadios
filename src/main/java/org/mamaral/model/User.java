@@ -1,6 +1,7 @@
 package org.mamaral.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -21,8 +22,13 @@ public class User {
 
     private char[] password;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
     private List<Phone> phones;
+
+    public User() {
+        this.phones = new ArrayList<>();
+    }
 
     public Long getId() {
         return id;

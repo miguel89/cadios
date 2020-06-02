@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+<h:head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+    <title>Cadios</title>
+
+    <h:outputStylesheet>
+        h1 {
+            float: left;
+        }
+
+        div.clear {
+            clear: both;
+        }
+
+        .loginDetails {
+            float: right;
+        }
+
+        div.clear {
+            clear: both;
+        }
+
+        .userGrid {
+            width: 100%;
+        }
+
+        .userGrid td:first-child {
+            width: 30%;
+        }
+
+        .userGrid td {
+            vertical-align: top
+        }
+
+        .user-form {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .user-form-inner {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-form-input {
+            margin: 5px;
+        }
+
+        .user-form-input label {
+            margin-right: 10px;
+        }
+
+        .user-form-input input {
+            max-width: 70%;
+        }
+    </h:outputStylesheet>
+</h:head>
+<h:body>
+    <h1>Usuarios</h1>
+
+    <h:form>
+        <div class="loginDetails">
+            #{userController.currentUser.fullName} (
+            <h:commandLink value="logout" action="#{authController.logout}"/>
+            )
+        </div>
+    </h:form>
+
+    <div class="clear"/>
+
+    <h:panelGroup rendered="#{authController.logged}">
+        <h:outputScript>
+            function onAddUser(data) {
+                if (data.status == 'success') {
+                    const userNameInput = document.getElementById('form:userName');
+                    userNameInput.value = '';
+                    userNameInput.focus();
+                    document.getElementById('form:userEmail').value = '';
+                    document.getElementById('form:userPassword').value = '';
+                    document.getElementById('form:userMobile').value = '';
+                    document.getElementById('form:userLandline').value = '';
+                }
+            }
+        </h:outputScript>
+
+    </h:panelGroup>
+    <h:form id="form">
+        <fieldset>
+            <legend>Cadastrar Usuario</legend>
+            <div class="user-form">
+                <div class="user-form-inner">
+                    <div class="user-form-input">
+                        <h:outputLabel value="Nome"/>
+                        <h:inputText id="userName" value="#{fullName}"/>
+                    </div>
+                    <div class="user-form-input">
+                        <h:outputLabel value="Email"/>
+                        <h:inputText id="userEmail" value="#{email}"/>
+                    </div>
+                    <div class="user-form-input">
+                        <h:outputLabel value="Senha"/>
+                        <h:inputSecret id="userPassword" value="#{password}"/>
+                    </div>
+                    <div class="user-form-input">
+                        <h:commandButton value="Cadastrar Usuario"
+                                         action="#{createUserController.createUser(fullName, email, password, mobileAc, mobile, ladlineAC, landline)}">
+                            <f:ajax execute="@form" render=":form:userGrid" onevent="onAddUser"/>
+                        </h:commandButton>
+                    </div>
+                </div>
+                <div class="user-form-inner">
+                    <div class="user-form-input">
+                        <h:outputLabel value="Celular"/>
+                        <h:inputText id="userMobileAC" value="#{mobileAC}"/>
+                        <h:inputText id="userMobile" value="#{mobile}"/>
+                    </div>
+                    <div class="user-form-input">
+                        <h:outputLabel value="Fixo"/>
+                        <h:inputText id="userLandlineAC" value="#{landlineAC}"/>
+                        <h:inputText id="userLandline" value="#{landline}"/>
+                    </div>
+                </div>
+
+            </div>
+        </fieldset>
+
+        <h:panelGrid id="userGrid" styleClass="userGrid" columns="2">
+            <h:panelGroup id="userList">
+                <fieldset>
+                    <legend>Listagem de usuarios</legend>
+                    <h:dataTable var="user" value="#{userList.all}">
+                        <h:column>
+                            <h:commandLink action="#{userController.deleteUser(userForDeletion)}">
+                                <h:selectBooleanCheckbox/>
+                                <f:setPropertyActionListener target="#{userForDeletion}" value="#{user}"/>
+                                <f:ajax render=":form:userGrid"/>
+                            </h:commandLink>
+
+                            <h:commandLink value="#{user.fullName}">
+                                <f:setPropertyActionListener
+                                        target="#{userController.currentUser}"
+                                        value="#{user}"/>
+                                <f:ajax render=":form:userDetail"/>
+                            </h:commandLink>
+                        </h:column>
+                    </h:dataTable>
+                </fieldset>
+            </h:panelGroup>
+
+            <h:panelGroup id="userDetail">
+                <fieldset>
+                    <legend>Detalhes do Usuario</legend>
+                    <h:panelGroup>
+                        <p>
+                            Nome:
+                            <h:outputText value="#{userController.currentUser.fullName}"
+                                          rendered="#{not empty userController.currentUser}"/>
+                        </p>
+                        <p>
+                            Email:
+                            <h:outputText value="#{userController.currentUser.email}"
+                                          rendered="#{not empty userController.currentUser}"/>
+                        </p>
+                        <p>
+                            Telefones:
+                            <h:dataTable var="phone" value="#{userController.currentUser.phones}"
+                                         rendered="#{not empty userController.currentUser}">
+                                <h:column>
+                                    #{phone.type.type} - (#{phone.areaCode}) #{phone.number}
+                                </h:column>
+                            </h:dataTable>
+                        </p>
+                        <p>
+                            <h:commandLink value="Remover usuario" action="#{userController.deleteCurrentUser()}"
+                                           style="display: #{empty userController.currentUser ? 'none' : 'inline'}">
+                                <f:ajax render=":form:taskGrid"/>
+                            </h:commandLink>
+                        </p>
+                    </h:panelGroup>
+                </fieldset>
+            </h:panelGroup>
+
+        </h:panelGrid>
+    </h:form>
+</h:body>
+</html>
